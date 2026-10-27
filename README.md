@@ -210,7 +210,7 @@ Response: `201 Created`
 }
 ```
 
-#### PUT `/api/games/{id}`  адмін
+#### PATCH `/api/games/{id}`  адмін
 Редагувати гру (можна передати тільки ті поля, які міняємо).
 
 Request body:
