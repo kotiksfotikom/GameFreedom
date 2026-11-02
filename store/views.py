@@ -9,6 +9,9 @@ from .serializers import DeveloperSerializer, GameSerializer
 
 def error_response(message, status_code):
     return Response({"error": message}, status=status_code)
+# 400 bad request, якщо дані криві, наприклад, немає потрібного поля
+# 404 not found, якщо об'єкта не існує
+# 409 conflict, якщо ми, наприклад, намагаємось видалити розробника, у якого є ігри
 
 # Developers views
 class DeveloperListAPIView(APIView):
