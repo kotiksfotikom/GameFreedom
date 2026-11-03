@@ -484,3 +484,73 @@ Response: `200 OK`
 - Оплата, поки замовлення створюється одразу, без грошей.
 - Відгуки та оцінки від користувачів
 - Вішліст
+
+
+## Як запустити проєкт
+
+### Що потрібно
+
+- Python 3.10 або новіший
+- Git
+
+### 1. Клонувати репозиторій
+
+```bash
+git clone https://github.com/kotiksfotikom/GameFreedom
+cd "hw project"
+```
+
+> Замініть `<посилання-на-ваш-репозиторій>` на URL свого репозиторію на GitHub.
+
+### 2. Створити віртуальне середовище
+
+**Windows (PowerShell):**
+```powershell
+python -m venv .venv
+.venv\Scripts\Activate.ps1
+```
+
+**Linux / macOS:**
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
+Після активації в терміналі з'явиться `(.venv)` на початку рядка.
+
+### 3. Встановити залежності
+
+```bash
+pip install -r requirements.txt
+```
+
+### 4. Застосувати міграції
+
+Міграції створюють таблиці в базі даних (використовується SQLite, файл `db.sqlite3` з'явиться автоматично):
+
+```bash
+python manage.py migrate
+```
+
+### 5. Створити адміністратора (необов'язково)
+
+Щоб зайти в адмін-панель Django:
+
+```bash
+python manage.py createsuperuser
+```
+
+### 6. Запустити сервер
+
+```bash
+python manage.py runserver
+```
+
+Сервер буде доступний за адресою: http://127.0.0.1:8000/
+
+- API: http://127.0.0.1:8000/api/
+- Адмін-панель: http://127.0.0.1:8000/admin/
+
+### 7. Перевірити API
+
+У папці `postman/` лежить колекція `GameFreedom API.postman_collection.json`. Її можна імпортувати в Postman і одразу протестувати всі ендпоінти.
