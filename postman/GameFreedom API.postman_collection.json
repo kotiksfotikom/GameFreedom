@@ -1,0 +1,1028 @@
+{
+	"info": {
+		"_postman_id": "1e6d988c-eaa0-410f-b754-151fb9848032",
+		"name": "GameFreedom API",
+		"description": "Повна колекція запитів для GameFreedom. Включає успішні запити та тести помилок (400, 404, 409).",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "42593056"
+	},
+	"item": [
+		{
+			"name": "Developers",
+			"item": [
+				{
+					"name": "1. GET All Developers (200 OK)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/developers/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"developers",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2. POST Create Developer (201 Created)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Neon Interactive\",\n  \"country\": \"Ukraine\",\n  \"description\": \"Інді-студія\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/developers/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"developers",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "3. POST Developer - Bad Request (400 Error)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{}"
+						},
+						"url": {
+							"raw": "{{base_url}}/developers/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"developers",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "4. GET Developer Detail (200 OK)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/developers/1/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"developers",
+								"1",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "5. GET Developer - Not Found (404 Error)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/developers/999/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"developers",
+								"999",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "6. PUT Update Developer (200 OK)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Neon Interactive 2.0\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/developers/1/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"developers",
+								"1",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "7. DELETE Developer with Games (409 Conflict)",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/developers/1/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"developers",
+								"1",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "8. DELETE Developer (204 No Content)",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/developers/2/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"developers",
+								"2",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "9. GET Developer's Games (200 OK)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/developers/1/games/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"developers",
+								"1",
+								"games",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "10. PUT Developer - Not Found (404 Error)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Neon Interactive 2.0\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/developers/999/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"developers",
+								"999",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "11. DELETE Developer - Not Found (404 Error)",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/developers/999/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"developers",
+								"999",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "12. GET Developer's Games - Not Found (404 Error)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/developers/999/games/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"developers",
+								"999",
+								"games",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Publishers",
+			"item": [
+				{
+					"name": "1. GET All Publishers (200 OK)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/publishers/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"publishers",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2. POST Create Publisher (201 Created)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Global Games\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/publishers/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"publishers",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "3. GET Publisher Detail (200 OK)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/publishers/1/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"publishers",
+								"1",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "4. PUT Update Publisher (200 OK)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Global Games Group\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/publishers/1/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"publishers",
+								"1",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "5. DELETE Publisher with Games (409 Conflict)",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/publishers/1/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"publishers",
+								"1",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "6. GET Publisher's Games (200 OK)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/publishers/1/games/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"publishers",
+								"1",
+								"games",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "7. POST Publisher - Bad Request (400 Error)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{}"
+						},
+						"url": {
+							"raw": "{{base_url}}/publishers/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"publishers",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "8. GET Publisher - Not Found (404 Error)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/publishers/999/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"publishers",
+								"999",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "9. PUT Publisher - Not Found (404 Error)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Global Games Group\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/publishers/999/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"publishers",
+								"999",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "10. DELETE Publisher (204 No Content)",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/publishers/2/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"publishers",
+								"2",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "11. DELETE Publisher - Not Found (404 Error)",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/publishers/999/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"publishers",
+								"999",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "12. GET Publisher's Games - Not Found (404 Error)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/publishers/999/games/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"publishers",
+								"999",
+								"games",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Genres",
+			"item": [
+				{
+					"name": "1. GET All Genres (200 OK)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/genres/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"genres",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2. POST Create Genre (201 Created)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"RPG\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/genres/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"genres",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "3. GET Genre Detail (200 OK)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/genres/1/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"genres",
+								"1",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "4. PUT Update Genre (200 OK)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Action RPG\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/genres/1/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"genres",
+								"1",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "5. DELETE Genre (204 No Content)",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/genres/1/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"genres",
+								"1",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "6. POST Genre - Bad Request (400 Error)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{}"
+						},
+						"url": {
+							"raw": "{{base_url}}/genres/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"genres",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "7. GET Genre - Not Found (404 Error)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/genres/999/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"genres",
+								"999",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "8. PUT Genre - Not Found (404 Error)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Action RPG\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/genres/999/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"genres",
+								"999",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "9. DELETE Genre - Not Found (404 Error)",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/genres/999/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"genres",
+								"999",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Games",
+			"item": [
+				{
+					"name": "1. GET All Games (200 OK)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/games/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"games",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2. POST Create Game (201 Created)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Cyber Odyssey 2088\",\n  \"price\": 59.99,\n  \"release_date\": \"2025-11-20\",\n  \"developer_id\": 1,\n  \"publisher_id\": 1,\n  \"genre_ids\": [1]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/games/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"games",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "3. POST Game - Bad Request (400 Error)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Cyber Odyssey 2088\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/games/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"games",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "4. GET Game Detail (200 OK)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/games/1/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"games",
+								"1",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "5. GET Game - Not Found (404 Error)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/games/999/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"games",
+								"999",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "6. PATCH Update Game (200 OK)",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"price\": 29.99\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/games/1/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"games",
+								"1",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "7. DELETE Game (204 No Content)",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/games/1/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"games",
+								"1",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "8. GET Games - Filter and Sort (200 OK)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/games/?genre_id=1&sort_by=price&order=asc",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"games",
+								""
+							],
+							"query": [
+								{
+									"key": "genre_id",
+									"value": "1"
+								},
+								{
+									"key": "sort_by",
+									"value": "price"
+								},
+								{
+									"key": "order",
+									"value": "asc"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "9. GET Games - Search (200 OK)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/games/?search=Cyber",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"games",
+								""
+							],
+							"query": [
+								{
+									"key": "search",
+									"value": "Cyber"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "10. PATCH Game - Not Found (404 Error)",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"price\": 29.99\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/games/999/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"games",
+								"999",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "11. DELETE Game - Not Found (404 Error)",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/games/999/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"games",
+								"999",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://127.0.0.1:8000/api",
+			"type": "string"
+		}
+	]
+}
