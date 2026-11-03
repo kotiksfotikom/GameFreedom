@@ -1,4 +1,5 @@
-from django.shortcuts import render
+from decimal import Decimal, InvalidOperation
+
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -15,6 +16,7 @@ def error_response(message, status_code):
 # 400 bad request, якщо дані криві, наприклад, немає потрібного поля
 # 404 not found, якщо об'єкта не існує
 # 409 conflict, якщо ми, наприклад, намагаємось видалити розробника, у якого є ігри
+
 
 # Developers views
 class DeveloperListAPIView(APIView):
@@ -68,10 +70,56 @@ class DeveloperDetailAPIView(APIView):
                 status.HTTP_409_CONFLICT
             )
 
+
 # Games views
 class GameListAPIView(APIView):
+    SORT_FIELDS = {'price', 'rating', 'release_date'}
+
     def get(self, request):
-        games = Game.objects.all()
+        params = request.query_params
+        games = Game.objects.select_related('developer', 'publisher').prefetch_related('genres')
+
+        # пошук за назвою
+        search = params.get('search')
+        if search:
+            games = games.filter(title__icontains=search)
+
+        # фільтри за id жанру, розробника, видавця
+        id_filters = (
+            ('genre_id', 'genres__id'),
+            ('developer_id', 'developer_id'),
+            ('publisher_id', 'publisher_id'),
+        )
+        for param, field in id_filters:
+            value = params.get(param)
+            if value:
+                try:
+                    games = games.filter(**{field: int(value)})
+                except ValueError:
+                    return error_response(f"Параметр {param} має бути числом.", status.HTTP_400_BAD_REQUEST)
+
+        # діапазон ціни
+        for param, lookup in (('min_price', 'price__gte'), ('max_price', 'price__lte')):
+            value = params.get(param)
+            if value:
+                try:
+                    games = games.filter(**{lookup: Decimal(value)})
+                except InvalidOperation:
+                    return error_response(f"Параметр {param} має бути числом.", status.HTTP_400_BAD_REQUEST)
+
+        # сортування
+        sort_by = params.get('sort_by')
+        order = params.get('order', 'asc')
+        if order not in ('asc', 'desc'):
+            return error_response("Параметр order має бути asc або desc.", status.HTTP_400_BAD_REQUEST)
+        if sort_by:
+            if sort_by not in self.SORT_FIELDS:
+                return error_response(
+                    "Параметр sort_by має бути price, rating або release_date.",
+                    status.HTTP_400_BAD_REQUEST
+                )
+            games = games.order_by(f"-{sort_by}" if order == 'desc' else sort_by)
+
         serializer = GameSerializer(games, many=True)
         return Response(serializer.data)
 
@@ -114,6 +162,7 @@ class GameDetailAPIView(APIView):
             return error_response("Гру не знайдено.", status.HTTP_404_NOT_FOUND)
         game.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
 
 # Publisher views
 class PublisherListAPIView(APIView):
@@ -166,6 +215,7 @@ class PublisherDetailAPIView(APIView):
                 "Неможливо видалити видавця, оскільки за ним закріплені ігри.",
                 status.HTTP_409_CONFLICT
             )
+
 
 # Genres views
 class GenreListAPIView(APIView):
@@ -222,7 +272,7 @@ class DeveloperGamesAPIView(APIView):
         except Developer.DoesNotExist:
             return error_response("Розробника не знайдено.", status.HTTP_404_NOT_FOUND)
 
-        games = developer.games.all()
+        games = developer.games.select_related('developer', 'publisher').prefetch_related('genres')
         serializer = GameSerializer(games, many=True)
         return Response(serializer.data)
 
@@ -234,7 +284,6 @@ class PublisherGamesAPIView(APIView):
         except Publisher.DoesNotExist:
             return error_response("Видавця не знайдено.", status.HTTP_404_NOT_FOUND)
 
-        games = publisher.games.all()
+        games = publisher.games.select_related('developer', 'publisher').prefetch_related('genres')
         serializer = GameSerializer(games, many=True)
         return Response(serializer.data)
-    
