@@ -3,6 +3,7 @@ from decimal import Decimal, InvalidOperation
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from django.db.models import ProtectedError
 from .models import Developer, Game, Publisher, Genre
 from .serializers import (
@@ -20,6 +21,8 @@ def error_response(message, status_code):
 
 # Developers views
 class DeveloperListAPIView(APIView):
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
     def get(self, request):
         developers = Developer.objects.all()
         serializer = DeveloperSerializer(developers, many=True)
@@ -34,6 +37,8 @@ class DeveloperListAPIView(APIView):
 
 
 class DeveloperDetailAPIView(APIView):
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
     def get_object(self, pk):
         try:
             return Developer.objects.get(pk=pk)
@@ -73,6 +78,7 @@ class DeveloperDetailAPIView(APIView):
 
 # Games views
 class GameListAPIView(APIView):
+    permission_classes = [IsAuthenticatedOrReadOnly]
     SORT_FIELDS = {'price', 'rating', 'release_date'}
 
     def get(self, request):
@@ -132,6 +138,7 @@ class GameListAPIView(APIView):
 
 
 class GameDetailAPIView(APIView):
+    permission_classes = [IsAuthenticatedOrReadOnly]
     def get_object(self, pk):
         try:
             return Game.objects.get(pk=pk)
@@ -166,6 +173,8 @@ class GameDetailAPIView(APIView):
 
 # Publisher views
 class PublisherListAPIView(APIView):
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
     def get(self, request):
         publishers = Publisher.objects.all()
         serializer = PublisherSerializer(publishers, many=True)
@@ -180,6 +189,8 @@ class PublisherListAPIView(APIView):
 
 
 class PublisherDetailAPIView(APIView):
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
     def get_object(self, pk):
         try:
             return Publisher.objects.get(pk=pk)
@@ -219,6 +230,8 @@ class PublisherDetailAPIView(APIView):
 
 # Genres views
 class GenreListAPIView(APIView):
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
     def get(self, request):
         genres = Genre.objects.all()
         serializer = GenreSerializer(genres, many=True)
@@ -233,6 +246,8 @@ class GenreListAPIView(APIView):
 
 
 class GenreDetailAPIView(APIView):
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
     def get_object(self, pk):
         try:
             return Genre.objects.get(pk=pk)

@@ -1,11 +1,19 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
+from rest_framework.validators import UniqueValidator
 
 
 class RegisterSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True, required=True, validators=[validate_password])
-    password_confirmation = serializers.CharField(write_only=True, required=True)
+    username = serializers.CharField(max_length=30)
+    email = serializers.EmailField(
+        max_length=100,
+        validators=[UniqueValidator(queryset=User.objects.all(), message="Цей email уже використовується.")]
+    )
+    first_name = serializers.CharField(max_length=30, required=False, allow_blank=True)
+    last_name = serializers.CharField(max_length=30, required=False, allow_blank=True)
+    password = serializers.CharField(write_only=True, max_length=128, validators=[validate_password])
+    password_confirmation = serializers.CharField(write_only=True, max_length=128)
 
     class Meta:
         model = User
