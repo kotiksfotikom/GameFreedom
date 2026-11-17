@@ -291,3 +291,55 @@ pytest
 ```bash
 pytest --cov=store --cov=accounts --cov-report=term-missing
 ```
+
+## Налаштування середовища (.env)
+
+Перед запуском проєкту створіть файл `.env` у корені репозиторію на основі шаблону `.env.example`:
+
+```bash
+cp .env.example .env
+```
+
+Необхідні змінні середовища:
+- `SECRET_KEY` — секретний ключ Django (у `.env.example` вказано заглушку, локально задайте власне значення);
+- `DEBUG` — режим налагодження (`True` для локальної розробки, `False` для продакшену);
+- `ALLOWED_HOSTS` — дозволені хости через кому (наприклад, `127.0.0.1,localhost`).
+
+## Встановлення залежностей та запуск
+
+1. Створіть та активуйте віртуальне середовище:
+   ```bash
+   python -m venv .venv
+   # Windows (CMD):
+   .venv\Scripts\activate.bat
+   ```
+2. Встановіть усі залежності проєкту:
+   ```bash
+   pip install -r requirements.txt
+   ```
+3. Застосуйте міграції та запустіть локальний сервер:
+   ```bash
+   python manage.py migrate
+   python manage.py runserver
+   ```
+
+## Документація API (OpenAPI)
+
+Документація автоматично генерується за допомогою `drf-spectacular`:
+- **Swagger UI:** http://127.0.0.1:8000/api/docs/
+- **ReDoc:** http://127.0.0.1:8000/api/redoc/
+- **Завантажити OpenAPI-схему (YAML):** http://127.0.0.1:8000/api/schema/ (або через CLI: `python manage.py spectacular --file schema.yml`)
+
+## Тестування та покриття коду
+
+Автоматизовані тести для ресурсу `Games` реалізовані з використанням `pytest`, `pytest-django` та `pytest-cov` (`store/tests/test_games_api.py`, фікстури у `conftest.py`).
+
+1. **Запустити всі тести:**
+   ```bash
+   pytest
+   ```
+2. **Запустити тести з вимірюванням покриття (Coverage):**
+   ```bash
+   pytest --cov=store --cov=accounts --cov-report=term-missing
+   ```
+   
