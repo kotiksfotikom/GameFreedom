@@ -1,34 +1,43 @@
 # GameFreedom
 
-Сайт-магазин цифрових відеоігор. Тут можна подивитись список ігор, знайти потрібну, додати її в кошик і купити.
+Сайт-магазин цифрових відеоігор. Тут можна подивитись список ігор, знайти потрібну, а авторизовані користувачі можуть додавати, редагувати та видаляти контент.
 
 ---
 
 ## Опис проєкту
 
-Ідея схожа на спрощений Steam. Є каталог ігор, у кожної гри є своя сторінка з описом, ціною та системними вимогами. Ігри мають розробника (студія, яка зробила гру) і видавця (компанія, яка її випускає), а також один або кілька жанрів.
+Ідея схожа на спрощений Steam. Є каталог ігор, у кожної гри є своя сторінка з описом, ціною та рейтингом. Ігри мають розробника (студія, яка зробила гру) і видавця (компанія, яка її випускає), а також один або кілька жанрів.
 
 ### Що можна робити на сайті
 
-**Будь-який відвідувач:**
-- дивитись список ігор;
+**Будь-який відвідувач (неавторизований):**
+- дивитись список ігор, розробників, видавців та жанрів;
 - шукати гру за назвою;
 - фільтрувати за жанром, розробником, видавцем і ціною;
 - сортувати за ціною, рейтингом і датою виходу;
-- відкрити сторінку окремої гри;
-- подивитись сторінки розробників і видавців (там усі їхні ігри);
-- прочитати сторінку «Про нас» (контакти, повернення коштів);
+- відкрити сторінку окремої гри, розробника чи видавця;
 - зареєструватись і залогінитись.
 
-**Залогінений користувач:**
-- має профіль, де можна змінити дані про себе;
-- додає ігри в кошик і видаляє їх звідти;
-- натискає «Купити», і створюється замовлення (без оплати, для спрощення);
-- бачить історію замовлень;
-- бачить свою бібліотеку куплених ігор.
-
-**Адміністратор:**
+**Авторизований користувач:**
 - додає, редагує і видаляє ігри, розробників, видавців і жанри.
+
+---
+
+## Авторизація та права доступу (JWT)
+
+Для автентифікації використовується **JWT (JSON Web Token)** (`djangorestframework-simplejwt`).
+
+- Після успішного логіну сервер повертає два токени: `access` (діє 60 хвилин) та `refresh` (діє 1 день).
+- Для доступу до захищених ендпоінтів (`POST`, `PUT`, `PATCH`, `DELETE`) у запиті потрібно передавати заголовок:
+  ```http
+  Authorization: Bearer <access_token>
+  ```
+- **Права доступу (`IsAuthenticatedOrReadOnly`):** усі `GET`-запити відкриті для будь-кого, а запити на зміну даних (`POST`, `PUT`, `PATCH`, `DELETE`) доступні лише авторизованим користувачам. Якщо токен відсутній або невалідний, повертається статус **`401 Unauthorized`**:
+  ```json
+  {
+    "detail": "Authentication credentials were not provided."
+  }
+  ```
 
 ---
 
@@ -36,93 +45,85 @@
 
 Дані передаються у форматі JSON. Усі шляхи починаються з `/api`.
 
-> **не вчив:** тут будуть ендпоінти тільки для залогінених, а авторизацію ми ще не вчили тому потім вирішимо про це
+### Реєстрація та JWT-автентифікація (`/api/accounts`)
 
-### Реєстрація і вхід
+#### POST `/api/accounts/register/`
+Створює нового користувача. Пароль зберігається в базі даних виключно в захешованому вигляді.
 
-#### POST `/api/auth/register`
-Створює нового користувача.
+**Параметри запиту (Request body):**
+- `username` (обов'язкове, max 30 символів)
+- `email` (обов'язкове, унікальне, коректний формат email, max 100 символів)
+- `password` (обов'язкове, мінімальна довжина та перевірка складності)
+- `password_confirmation` (обов'язкове, має збігатися з `password`)
+- `first_name` (необов'язкове, max 30 символів)
+- `last_name` (необов'язкове, max 30 символів)
 
 Request body:
 ```json
 {
   "username": "gamer99",
+  "first_name": "Dmytro",
+  "last_name": "Sukhodolskyi",
   "email": "gamer99@example.com",
-  "password": "12345678"
+  "password": "StrongPassword123!",
+  "password_confirmation": "StrongPassword123!"
 }
 ```
 Response: `201 Created`
 ```json
 {
-  "id": 1,
-  "username": "gamer99",
-  "email": "gamer99@example.com"
+  "message": "Користувача успішно зареєстровано!"
 }
 ```
-Якщо email уже зайнятий, повертається `400 Bad Request`.
+Якщо поля заповнені некоректно або паролі не збігаються, повертається `400 Bad Request` з описом помилок для кожного поля.
 
-#### POST `/api/auth/login`
-Вхід в акаунт.
+#### POST `/api/accounts/login/`
+Вхід в акаунт та отримання пари JWT-токенів.
 
 Request body:
 ```json
 {
-  "email": "gamer99@example.com",
-  "password": "12345678"
+  "username": "gamer99",
+  "password": "StrongPassword123!"
 }
 ```
 Response: `200 OK`
 ```json
 {
-  "id": 1,
-  "username": "gamer99",
-  "email": "gamer99@example.com"
+  "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "access": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
 }
 ```
-Якщо email або пароль неправильні, повертається `401 Unauthorized`.
-
-> **потім:** що саме повертати після логіну вирішимо коли дійдемо до авторизації
-
----
-
-### Профіль користувача користувач
-
-#### GET `/api/users/me`
-Отримати дані свого профілю.
-
-Response: `200 OK`
+Якщо логін або пароль неправильні, повертається `401 Unauthorized`:
 ```json
 {
-  "id": 1,
-  "username": "gamer99",
-  "email": "gamer99@example.com"
+  "detail": "No active account found with the given credentials"
 }
 ```
 
-#### PUT `/api/users/me`
-Змінити дані профілю.
+#### POST `/api/accounts/token/refresh/`
+Оновлення простроченого `access`-токена за допомогою `refresh`-токена.
 
 Request body:
 ```json
 {
-  "username": "pro_gamer"
+  "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
 }
 ```
 Response: `200 OK`
 ```json
 {
-  "id": 1,
-  "username": "pro_gamer",
-  "email": "gamer99@example.com"
+  "access": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
 }
 ```
+Якщо `refresh`-токен невалідний або прострочений, повертається `401 Unauthorized`.
 
 ---
 
 ### Ігри
 
-#### GET `/api/games`
-Список ігор для головної сторінки каталогу.
+#### GET `/api/games/`
+Список ігор для головної сторінки каталогу (доступно всім).
 
 Query-параметри (всі необов'язкові):
 
@@ -136,7 +137,7 @@ Query-параметри (всі необов'язкові):
 | `sort_by` | сортування: `price`, `rating` або `release_date` |
 | `order` | `asc` (за зростанням) або `desc` (за спаданням) |
 
-Приклад запиту: `/api/games?genre_id=1&sort_by=price&order=asc`
+Приклад запиту: `/api/games/?genre_id=1&sort_by=price&order=asc`
 
 Response: `200 OK`
 ```json
@@ -144,47 +145,23 @@ Response: `200 OK`
   {
     "id": 10,
     "title": "Cyber Odyssey 2088",
-    "price": 59.99,
-    "rating": 4.8,
+    "price": "59.99",
+    "rating": "4.8",
     "release_date": "2025-11-20",
-    "cover_image_url": "https://example.com/cyber.jpg",
     "developer": { "id": 2, "name": "Neon Interactive" },
     "publisher": { "id": 1, "name": "Global Games" },
     "genres": [
-      { "id": 1, "name": "RPG" },
-      { "id": 3, "name": "Action" }
+      { "id": 1, "name": "RPG" }
     ]
   }
 ]
 ```
 
+#### GET `/api/games/{id}/`
+Сторінка однієї гри з повною інформацією (доступно всім). Повертає `200 OK` або `404 Not Found`.
 
-#### GET `/api/games/{id}`
-Сторінка однієї гри з повною інформацією.
-
-Response: `200 OK`
-```json
-{
-  "id": 10,
-  "title": "Cyber Odyssey 2088",
-  "description": "Рольова гра у кіберпанковому місті.",
-  "price": 59.99,
-  "rating": 4.8,
-  "release_date": "2025-11-20",
-  "cover_image_url": "https://example.com/cyber.jpg",
-  "min_system_requirements": "Windows 10, 12 GB RAM, GTX 1060",
-  "rec_system_requirements": "Windows 11, 16 GB RAM, RTX 3070",
-  "developer": { "id": 2, "name": "Neon Interactive" },
-  "publisher": { "id": 1, "name": "Global Games" },
-  "genres": [
-    { "id": 1, "name": "RPG" }
-  ]
-}
-```
-Якщо гри з таким id немає, повертається `404 Not Found`.
-
-#### POST `/api/games`  адмін
-Додати нову гру.
+#### POST `/api/games/` (потрібен токен)
+Додати нову гру. Потрібен заголовок `Authorization: Bearer <access_token>`.
 
 Request body:
 ```json
@@ -192,262 +169,58 @@ Request body:
   "title": "Mystic Realms",
   "description": "Фентезійна стратегія.",
   "price": 39.99,
+  "rating": 9.2,
   "release_date": "2026-03-15",
-  "cover_image_url": "https://example.com/mystic.jpg",
-  "min_system_requirements": "Windows 10, 8 GB RAM",
-  "rec_system_requirements": "Windows 11, 16 GB RAM",
-  "developer_id": 3,
-  "publisher_id": 2,
-  "genre_ids": [2, 4]
+  "developer_id": 1,
+  "publisher_id": 1,
+  "genre_ids": [1]
 }
 ```
-Response: `201 Created`
-```json
-{
-  "id": 11,
-  "title": "Mystic Realms",
-  "price": 39.99
-}
-```
+Response: `201 Created` (або `400 Bad Request` / `401 Unauthorized`).
 
-#### PATCH `/api/games/{id}`  адмін
-Редагувати гру (можна передати тільки ті поля, які міняємо).
+#### PATCH `/api/games/{id}/` (потрібен токен)
+Редагувати гру (можна передати тільки ті поля, які міняємо). Повертає `200 OK`, `400 Bad Request`, `401 Unauthorized` або `404 Not Found`.
 
-Request body:
-```json
-{
-  "price": 29.99
-}
-```
-Response: `200 OK`
-```json
-{
-  "id": 11,
-  "title": "Mystic Realms",
-  "price": 29.99
-}
-```
-
-#### DELETE `/api/games/{id}`  адмін
-Видалити гру.
-
-Response: `204 No Content` (body немає).
+#### DELETE `/api/games/{id}/` (потрібен токен)
+Видалити гру. Повертає `204 No Content`, `401 Unauthorized` або `404 Not Found`.
 
 ---
 
 ### Розробники
 
-| Метод | Шлях | Для чого | Хто | Статус |
-|-------|------|----------|-----|--------|
-| GET | `/api/developers` | список усіх розробників | усі | `200 OK` |
-| GET | `/api/developers/{id}` | сторінка розробника | усі | `200 OK` |
-| GET | `/api/developers/{id}/games` | усі ігри розробника | усі | `200 OK` |
-| POST | `/api/developers` | додати розробника | адмін | `201 Created` |
-| PUT | `/api/developers/{id}` | редагувати розробника | адмін | `200 OK` |
-| DELETE | `/api/developers/{id}` | видалити розробника | адмін | `204 No Content` |
-
-Приклад відповіді для `GET /api/developers/{id}`:
-```json
-{
-  "id": 2,
-  "name": "Neon Interactive",
-  "country": "Ukraine",
-  "description": "Українська інді-студія.",
-  "website": "https://neon.example.com",
-  "logo_url": "https://example.com/neon.png"
-}
-```
-
-Приклад відповіді для `GET /api/developers/{id}/games`:
-```json
-[
-  {
-    "id": 10,
-    "title": "Cyber Odyssey 2088",
-    "price": 59.99,
-    "cover_image_url": "https://example.com/cyber.jpg"
-  }
-]
-```
-
-Request body для `POST` і `PUT` (при `PUT` можна передати тільки частину полів):
-```json
-{
-  "name": "Neon Interactive",
-  "country": "Ukraine",
-  "description": "Українська інді-студія.",
-  "website": "https://neon.example.com",
-  "logo_url": "https://example.com/neon.png"
-}
-```
+| Метод | Шлях | Для чого | Доступ | Статус |
+|-------|------|----------|--------|--------|
+| GET | `/api/developers/` | список усіх розробників | усі | `200 OK` |
+| GET | `/api/developers/{id}/` | деталі розробника | усі | `200 OK` / `404` |
+| GET | `/api/developers/{id}/games/` | усі ігри розробника | усі | `200 OK` / `404` |
+| POST | `/api/developers/` | додати розробника | авторизовані (`Bearer`) | `201 Created` / `401` |
+| PUT | `/api/developers/{id}/` | редагувати розробника | авторизовані (`Bearer`) | `200 OK` / `401` / `404` |
+| DELETE | `/api/developers/{id}/` | видалити розробника | авторизовані (`Bearer`) | `204 No Content` / `401` / `409` |
 
 ---
 
 ### Видавці
 
-Працюють так само, як розробники, тільки шлях `/api/publishers`.
-
-| Метод | Шлях | Для чого | Хто | Статус |
-|-------|------|----------|-----|--------|
-| GET | `/api/publishers` | список усіх видавців | усі | `200 OK` |
-| GET | `/api/publishers/{id}` | сторінка видавця | усі | `200 OK` |
-| GET | `/api/publishers/{id}/games` | усі ігри видавця | усі | `200 OK` |
-| POST | `/api/publishers` | додати видавця | адмін | `201 Created` |
-| PUT | `/api/publishers/{id}` | редагувати видавця | адмін | `200 OK` |
-| DELETE | `/api/publishers/{id}` | видалити видавця | адмін | `204 No Content` |
-
-Request body і response body такі самі, як у розробників.
+| Метод | Шлях | Для чого | Доступ | Статус |
+|-------|------|----------|--------|--------|
+| GET | `/api/publishers/` | список усіх видавців | усі | `200 OK` |
+| GET | `/api/publishers/{id}/` | деталі видавця | усі | `200 OK` / `404` |
+| GET | `/api/publishers/{id}/games/` | усі ігри видавця | усі | `200 OK` / `404` |
+| POST | `/api/publishers/` | додати видавця | авторизовані (`Bearer`) | `201 Created` / `401` |
+| PUT | `/api/publishers/{id}/` | редагувати видавця | авторизовані (`Bearer`) | `200 OK` / `401` / `404` |
+| DELETE | `/api/publishers/{id}/` | видалити видавця | авторизовані (`Bearer`) | `204 No Content` / `401` / `409` |
 
 ---
 
 ### Жанри
 
-| Метод | Шлях | Для чого | Хто | Статус |
-|-------|------|----------|-----|--------|
-| GET | `/api/genres` | список жанрів (для фільтра) | усі | `200 OK` |
-| POST | `/api/genres` | додати жанр | адмін | `201 Created` |
-| PUT | `/api/genres/{id}` | редагувати жанр | адмін | `200 OK` |
-| DELETE | `/api/genres/{id}` | видалити жанр | адмін | `204 No Content` |
-
-Response для `GET /api/genres`:
-```json
-[
-  { "id": 1, "name": "RPG" },
-  { "id": 2, "name": "Strategy" }
-]
-```
-
-Request body для `POST` і `PUT`:
-```json
-{
-  "name": "Horror"
-}
-```
-
----
-
-### Кошик  користувач
-
-#### GET `/api/cart`
-Показати, що лежить у кошику.
-
-Response: `200 OK`
-```json
-{
-  "items": [
-    {
-      "game_id": 10,
-      "title": "Cyber Odyssey 2088",
-      "price": 59.99
-    }
-  ],
-  "total_price": 59.99
-}
-```
-
-#### POST `/api/cart/items`
-Додати гру в кошик.
-
-Request body:
-```json
-{
-  "game_id": 10
-}
-```
-Response: `201 Created`
-```json
-{
-  "game_id": 10,
-  "title": "Cyber Odyssey 2088"
-}
-```
-Якщо гра вже є в кошику, повертається `400 Bad Request`.
-
-#### DELETE `/api/cart/items/{game_id}`
-Прибрати одну гру з кошика.
-
-Response: `204 No Content`
-
-#### DELETE `/api/cart`
-Очистити весь кошик.
-
-Response: `204 No Content`
-
----
-
-### Замовлення і бібліотека  користувач
-
-#### POST `/api/orders`
-Купити все, що лежить у кошику. Створюється замовлення, кошик очищається. Request body не потрібен, бо оплату поки не робимо.
-
-Response: `201 Created`
-```json
-{
-  "id": 101,
-  "total_amount": 59.99,
-  "created_at": "2026-10-13T14:00:00Z",
-  "items": [
-    {
-      "game_id": 10,
-      "title": "Cyber Odyssey 2088",
-      "price": 59.99,
-      "activation_key": "ABCD-1234-EFGH"
-    }
-  ]
-}
-```
-Якщо кошик порожній, повертається `400 Bad Request`.
-
-#### GET `/api/orders`
-Історія замовлень.
-
-Response: `200 OK`
-```json
-[
-  {
-    "id": 101,
-    "total_amount": 59.99,
-    "created_at": "2026-10-13T14:00:00Z"
-  }
-]
-```
-
-#### GET `/api/orders/{id}`
-Одне замовлення з іграми всередині.
-
-Response: `200 OK` (такий самий, як відповідь на `POST /api/orders`).
-
-#### GET `/api/library`
-Усі ігри, які користувач уже купив.
-
-Response: `200 OK`
-```json
-[
-  {
-    "game_id": 10,
-    "title": "Cyber Odyssey 2088",
-    "cover_image_url": "https://example.com/cyber.jpg",
-    "activation_key": "ABCD-1234-EFGH"
-  }
-]
-```
-
----
-
-### Сторінка «Про нас»
-
-#### GET `/api/about`
-Контакти, інформація про повернення коштів.
-
-Response: `200 OK`
-```json
-{
-  "description": "GameFreedom — магазин цифрових ігор.",
-  "email": "support@gamefreedom.example.com",
-  "phone": "+380 44 123 45 67",
-  "refund_policy": "Гроші можна повернути протягом 14 днів, якщо ключ ще не активовано."
-}
-```
+| Метод | Шлях | Для чого | Доступ | Статус |
+|-------|------|----------|--------|--------|
+| GET | `/api/genres/` | список жанрів | усі | `200 OK` |
+| GET | `/api/genres/{id}/` | деталі жанру | усі | `200 OK` / `404` |
+| POST | `/api/genres/` | додати жанр | авторизовані (`Bearer`) | `201 Created` / `401` |
+| PUT | `/api/genres/{id}/` | редагувати жанр | авторизовані (`Bearer`) | `200 OK` / `401` / `404` |
+| DELETE | `/api/genres/{id}/` | видалити жанр | авторизовані (`Bearer`) | `204 No Content` / `401` / `404` |
 
 ---
 
@@ -455,32 +228,118 @@ Response: `200 OK`
 
 ![img.png](img.png)
 
-### Таблиці
-
-| Таблиця | Поля |
-|---------|------|
-| `users` | id, username, email, password, role (user/admin) |
-| `developers` | id, name, country, description, website, logo_url |
-| `publishers` | id, name, country, description, website, logo_url |
-| `genres` | id, name |
-| `games` | id, title, description, price, rating, release_date, cover_image_url, min_system_requirements, rec_system_requirements, developer_id, publisher_id |
-| `game_genres` | game_id, genre_id |
-| `cart_items` | user_id, game_id |
-| `orders` | id, user_id, total_amount, created_at |
-| `order_items` | id, order_id, game_id, price, activation_key |
-
-### Зв'язки
-
-- Одна гра має одного розробника і одного видавця, а в розробника і видавця може бути багато ігор (**один до багатьох**).
-- Гра може мати кілька жанрів, а жанр може бути в багатьох іграх (**багато до багатьох**), для цього є таблиця `game_genres`.
-- Користувач може мати багато ігор у кошику (таблиця `cart_items`).
-- Користувач може мати багато замовлень, а в замовленні може бути багато ігор (таблиця `order_items`).
-- Ціну в `order_items` зберігаємо окремо, щоб історія замовлень не змінювалась, якщо гра потім подорожчає чи подешевшає.
-
 ---
 
-## Що ще можна додати
+## Як запустити проєкт
 
-- Оплата, поки замовлення створюється одразу, без грошей.
-- Відгуки та оцінки від користувачів
-- Вішліст
+### Що потрібно
+- Python 3.10 або новіший
+- Git
+
+### 1. Клонувати репозиторій
+```bash
+git clone https://github.com/kotiksfotikom/GameFreedom
+cd "hw project"
+```
+
+### 2. Створити та активувати віртуальне середовище
+
+**Windows (CMD / PowerShell):**
+```powershell
+python -m venv .venv
+.venv\Scripts\activate
+```
+
+**Linux / macOS:**
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
+### 3. Встановити залежності
+```bash
+pip install -r requirements.txt
+```
+
+### 4. Застосувати міграції
+```bash
+python manage.py migrate
+```
+
+### 5. Запустити сервер
+```bash
+python manage.py runserver
+```
+
+Сервер буде доступний за адресою: `http://127.0.0.1:8000/`
+- API: `http://127.0.0.1:8000/api/`
+- Адмін-панель: `http://127.0.0.1:8000/admin/`
+
+### 6. Перевірити API у Postman
+У папці `postman/` лежить оновлена колекція `GameFreedom API.postman_collection.json`. Імпортуйте її в Postman: після виконання запиту `3. POST Login JWT` змінні колекції `access_token` та `refresh_token` підставляться автоматично.
+
+## Тестування та покриття коду
+
+Проєкт покритий автоматизованими тестами з використанням `pytest`, `pytest-django` та `pytest-cov` (тести знаходяться у `store/tests/test_games_api.py`, фікстури — у `conftest.py`).
+
+### 1. Запустити всі тести
+```bash
+pytest
+```
+
+### 2. Запустити тести з розрахунком відсотка покриття (Coverage)
+```bash
+pytest --cov=store --cov=accounts --cov-report=term-missing
+```
+
+## Налаштування середовища (.env)
+
+Перед запуском проєкту створіть файл `.env` у корені репозиторію на основі шаблону `.env.example`:
+
+```bash
+cp .env.example .env
+```
+
+Необхідні змінні середовища:
+- `SECRET_KEY` — секретний ключ Django (у `.env.example` вказано заглушку, локально задайте власне значення);
+- `DEBUG` — режим налагодження (`True` для локальної розробки, `False` для продакшену);
+- `ALLOWED_HOSTS` — дозволені хости через кому (наприклад, `127.0.0.1,localhost`).
+
+## Встановлення залежностей та запуск
+
+1. Створіть та активуйте віртуальне середовище:
+   ```bash
+   python -m venv .venv
+   # Windows (CMD):
+   .venv\Scripts\activate.bat
+   ```
+2. Встановіть усі залежності проєкту:
+   ```bash
+   pip install -r requirements.txt
+   ```
+3. Застосуйте міграції та запустіть локальний сервер:
+   ```bash
+   python manage.py migrate
+   python manage.py runserver
+   ```
+
+## Документація API (OpenAPI)
+
+Документація автоматично генерується за допомогою `drf-spectacular`:
+- **Swagger UI:** http://127.0.0.1:8000/api/docs/
+- **ReDoc:** http://127.0.0.1:8000/api/redoc/
+- **Завантажити OpenAPI-схему (YAML):** http://127.0.0.1:8000/api/schema/ (або через CLI: `python manage.py spectacular --file schema.yml`)
+
+## Тестування та покриття коду
+
+Автоматизовані тести для ресурсу `Games` реалізовані з використанням `pytest`, `pytest-django` та `pytest-cov` (`store/tests/test_games_api.py`, фікстури у `conftest.py`).
+
+1. **Запустити всі тести:**
+   ```bash
+   pytest
+   ```
+2. **Запустити тести з вимірюванням покриття (Coverage):**
+   ```bash
+   pytest --cov=store --cov=accounts --cov-report=term-missing
+   ```
+   
