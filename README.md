@@ -277,3 +277,17 @@ python manage.py runserver
 
 ### 6. Перевірити API у Postman
 У папці `postman/` лежить оновлена колекція `GameFreedom API.postman_collection.json`. Імпортуйте її в Postman: після виконання запиту `3. POST Login JWT` змінні колекції `access_token` та `refresh_token` підставляться автоматично.
+
+## Тестування та покриття коду
+
+Проєкт покритий автоматизованими тестами з використанням `pytest`, `pytest-django` та `pytest-cov` (тести знаходяться у `store/tests/test_games_api.py`, фікстури — у `conftest.py`).
+
+### 1. Запустити всі тести
+```bash
+pytest
+```
+
+### 2. Запустити тести з розрахунком відсотка покриття (Coverage)
+```bash
+pytest --cov=store --cov=accounts --cov-report=term-missing
+```
